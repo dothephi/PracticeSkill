@@ -2,11 +2,11 @@
 #nullable disable
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Repositories.Models;
+using Model.Data;
 using System;
 using System.Collections.Generic;
 
-namespace Repositories.DBContext;
+namespace Model.Data;
 
 public partial class PracticeSkillContext : DbContext
 {

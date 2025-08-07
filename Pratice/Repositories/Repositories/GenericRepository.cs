@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repositories.DBContext;
-using Repositories.Repositories.IRepositories;
+using DataAccess.Repositories.IRepositories;
 using System.Linq.Expressions;
+using Model.Data;
 
-namespace Repositories.Repositories
+namespace DataAccess.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {

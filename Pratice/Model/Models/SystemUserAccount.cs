@@ -2,11 +2,13 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace Repositories.Models;
+namespace Model.Data;
 
 public partial class SystemUserAccount
 {
+    [Key]
     public int Id { get; set; }
 
     public string Email { get; set; }

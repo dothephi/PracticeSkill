@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Repositories.IRepositories
+namespace DataAccess.UoW
 {
-    public interface ISystemUserAccountRepository
+    public class UnitOfWork : IUnitOfWork
     {
     }
 }
