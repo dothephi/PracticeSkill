@@ -10,34 +10,11 @@ namespace Model.Data;
 
 public partial class PracticeSkillContext : DbContext
 {
-    public PracticeSkillContext()
-    {
-    }
-
-    public PracticeSkillContext(DbContextOptions<PracticeSkillContext> options)
-        : base(options)
-    {
-    }
+    public PracticeSkillContext(DbContextOptions<PracticeSkillContext> options) : base(options){}
 
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<SystemUserAccount> SystemUserAccounts { get; set; }
-
-    public static string GetConnectionString(string connectionStringName)
-    {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json")
-            .Build();
-
-        string connectionString = config.GetConnectionString(connectionStringName);
-        return connectionString;
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"))
-        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

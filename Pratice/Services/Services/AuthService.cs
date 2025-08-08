@@ -25,41 +25,41 @@ namespace BusinessLogicLayer.Services
                 return response;
             }
 
-            var isPasswordValid = VerifyPassword(loginDTO.Password, user.PasswordHash);
+            //var isPasswordValid = VerifyPassword(loginDTO.Password, user.PasswordHash);
 
-            if (!isPasswordValid)
-            {
-                response.Message = "Thông tin đăng nhập không hợp lệ";
-                return response;
-            }
+            //if (!isPasswordValid)
+            //{
+            //    response.Message = "Thông tin đăng nhập không hợp lệ";
+            //    return response;
+            //}
 
-            if (!user.IsEmailVerified)
-            {
-                response.Message = "Vui lòng xác minh email của bạn trước khi đăng nhập. Kiểm tra hộp thư đến để biết mã xác minh.";
-                return response;
-            }
+            //if (!user.IsEmailVerified)
+            //{
+            //    response.Message = "Vui lòng xác minh email của bạn trước khi đăng nhập. Kiểm tra hộp thư đến để biết mã xác minh.";
+            //    return response;
+            //}
 
-            if (user.IsActive == AccountStatus.Banned)
-            {
-                response.Message = "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ với quản trị viên để biết thêm chi tiết.";
-                return response;
-            }
+            //if (user.IsActive == AccountStatus.Banned)
+            //{
+            //    response.Message = "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ với quản trị viên để biết thêm chi tiết.";
+            //    return response;
+            //}
 
-            var token = _jwtHelper.GenerateJwtToken(user);
-            var refreshToken = _jwtHelper.GenerateRefreshToken();
+            //var token = _jwtHelper.GenerateJwtToken(user);
+            //var refreshToken = _jwtHelper.GenerateRefreshToken();
 
-            var tokenExpiration = DateTime.Now.AddHours(1);
-            var refreshTokenExpiration = DateTime.Now.AddDays(7);
+            //var tokenExpiration = DateTime.Now.AddHours(1);
+            //var refreshTokenExpiration = DateTime.Now.AddDays(7);
 
-            user.Token = token;
-            user.TokenExpires = tokenExpiration;
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpires = refreshTokenExpiration;
-            await _authRepository.UpdateAsync(user);
+            //user.Token = token;
+            //user.TokenExpires = tokenExpiration;
+            //user.RefreshToken = refreshToken;
+            //user.RefreshTokenExpires = refreshTokenExpiration;
+            //await _authRepository.UpdateAsync(user);
 
-            response.IsSucceed = true;
-            response.Message = "Đăng nhập thành công!";
-            response.Data = new { Token = token, RefreshToken = refreshToken };
+            //response.IsSucceed = true;
+            //response.Message = "Đăng nhập thành công!";
+            //response.Data = new { Token = token, RefreshToken = refreshToken };
 
             return response;
         }

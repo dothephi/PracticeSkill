@@ -56,7 +56,7 @@ namespace API
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             builder.Services.AddDbContext<PracticeSkillContext>(option =>
             {
-                var connectionString = builder.Configuration.GetConnectionString("DB");
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
                 option.UseSqlServer(connectionString);
             });
 
