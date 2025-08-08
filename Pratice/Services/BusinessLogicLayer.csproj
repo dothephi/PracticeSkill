@@ -10,4 +10,14 @@
     <ProjectReference Include="..\Repositories\DataAccess.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		<PackageReference Include="Google.Apis.Sheets.v4" Version="1.69.0.3743" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="payOS" Version="1.0.9" />
+	</ItemGroup>
+	
 </Project>
