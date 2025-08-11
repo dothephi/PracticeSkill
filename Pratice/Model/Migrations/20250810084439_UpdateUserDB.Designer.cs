@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Model.Data;
 
@@ -11,9 +12,11 @@ using Model.Data;
 namespace Model.Migrations
 {
     [DbContext(typeof(PracticeSkillContext))]
-    partial class PracticeSkillContextModelSnapshot : ModelSnapshot
+    [Migration("20250810084439_UpdateUserDB")]
+    partial class UpdateUserDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,7 +76,7 @@ namespace Model.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("EmailVerificationTokenExpires")
+                    b.Property<DateTime>("EmailVerificationTokenExpires")
                         .HasColumnType("datetime");
 
                     b.Property<string>("Gender")
@@ -102,7 +105,7 @@ namespace Model.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("RefreshTokenExpires")
+                    b.Property<DateTime>("RefreshTokenExpires")
                         .HasColumnType("datetime");
 
                     b.Property<int?>("RoleId")
@@ -112,7 +115,7 @@ namespace Model.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("TokenExpires")
+                    b.Property<DateTime>("TokenExpires")
                         .HasColumnType("datetime");
 
                     b.Property<string>("Username")

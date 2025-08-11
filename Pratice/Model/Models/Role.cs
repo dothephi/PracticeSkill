@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Model.Data;
+namespace Model.Models;
 
 public partial class Role
 {

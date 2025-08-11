@@ -18,14 +18,14 @@ namespace BusinessLogicLayer.Services
         {
             var response = new ResponseDTO();
 
-            var user = await _authRepository.GetByUserName(loginDTO.Username);
-            if (user == null)
-            {
-                response.Message = "Thông tin đăng nhập không hợp lệ";
-                return response;
-            }
+            //var user = await _authRepository.GetByUserName(loginDTO.Username);
+            //if (user == null)
+            //{
+            //    response.Message = "Thông tin đăng nhập không hợp lệ";
+            //    return response;
+            //}
 
-            //var isPasswordValid = VerifyPassword(loginDTO.Password, user.PasswordHash);
+            //var isPasswordValid = VerifyPassword(loginDTO.Password, user.Password);
 
             //if (!isPasswordValid)
             //{
@@ -64,6 +64,19 @@ namespace BusinessLogicLayer.Services
             return response;
         }
 
+        private string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
 
+        private bool VerifyPassword(string enteredPassword, string hashedPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(enteredPassword, hashedPassword);
+        }
+
+        private string GenerateUniqueId()
+        {
+            return Guid.NewGuid().ToString();
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Model.Data;
+﻿using Model.Models;
 
 namespace DataAccess.Repositories.IRepositories
 {

@@ -4,30 +4,48 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Model.Data;
+namespace Model.Models;
 
 public partial class SystemUserAccount
 {
     [Key]
-    public int Id { get; set; }
+    public int AccountId { get; set; }
 
     public string Email { get; set; }
 
-    public string Password { get; set; }
+    public string PasswordHash { get; set; }
 
     public string Username { get; set; }
 
+    public string Gender { get; set; }
+
     public string PhoneNumber { get; set; }
+
+    public string Avatar { get; set; }
 
     public int? RoleId { get; set; }
 
-    public DateTime? Birthday { get; set; }
+    public DateTime Birthday { get; set; }
 
     public string Address { get; set; }
 
-    public DateTime? CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
     public bool? IsActive { get; set; }
+
+    public string Token { get; set; }
+
+    public DateTime? TokenExpires { get; set; }
+
+    public string RefreshToken { get; set; }
+
+    public DateTime? RefreshTokenExpires { get; set; }
+
+    public bool IsEmailVerified { get; set; } = false;
+
+    public string EmailVerificationToken { get; set; }
+
+    public DateTime? EmailVerificationTokenExpires { get; set; }
 
     public virtual Role Role { get; set; }
 }

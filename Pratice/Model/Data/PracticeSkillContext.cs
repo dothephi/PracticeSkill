@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Model.Data;
+using Model.Models;
 using System;
 using System.Collections.Generic;
 
@@ -31,7 +32,7 @@ public partial class PracticeSkillContext : DbContext
 
         modelBuilder.Entity<SystemUserAccount>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SystemUs__3214EC079E2489F6");
+            entity.HasKey(e => e.AccountId).HasName("PK__SystemUs__3214EC079E2489F6");
 
             entity.ToTable("SystemUserAccount");
 
@@ -44,7 +45,7 @@ public partial class PracticeSkillContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
-            entity.Property(e => e.Password)
+            entity.Property(e => e.PasswordHash)
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
@@ -55,6 +56,27 @@ public partial class PracticeSkillContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.SystemUserAccounts)
                 .HasForeignKey(d => d.RoleId)
                 .HasConstraintName("FK__SystemUse__RoleI__4BAC3F29");
+
+            entity.Property(e => e.Token)
+                .HasMaxLength(500); // nếu cần giới hạn chiều dài
+
+            entity.Property(e => e.TokenExpires)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.RefreshToken)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.RefreshTokenExpires)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.IsEmailVerified)
+                .HasDefaultValue(false);
+
+            entity.Property(e => e.EmailVerificationToken)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.EmailVerificationTokenExpires)
+                .HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);
