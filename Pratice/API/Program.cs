@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Model.Data;
+using Model.Helper;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json;
@@ -63,12 +64,12 @@ namespace API
             // Inject app Dependency Injection
             builder.Services.AddScoped<PracticeSkillContext>();
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            //builder.Services.AddScoped<JwtHelper>();
+            builder.Services.AddScoped<JwtHelper>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
-
+        
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                 {
