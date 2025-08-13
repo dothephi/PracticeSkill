@@ -25,10 +25,7 @@ namespace Model.Migrations
             modelBuilder.Entity("Model.Models.Role", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("RoleName")
                         .IsRequired()
@@ -36,18 +33,15 @@ namespace Model.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id")
-                        .HasName("PK__Role__3214EC07383340E5");
+                        .HasName("PK_Role");
 
                     b.ToTable("Role", (string)null);
                 });
 
             modelBuilder.Entity("Model.Models.SystemUserAccount", b =>
                 {
-                    b.Property<int>("AccountId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"));
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Address")
                         .HasMaxLength(255)
@@ -79,10 +73,10 @@ namespace Model.Migrations
                     b.Property<string>("Gender")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("IsActive")
+                    b.Property<int>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValueSql("((1))");
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.Property<bool>("IsEmailVerified")
                         .ValueGeneratedOnAdd()
@@ -102,17 +96,17 @@ namespace Model.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("RefreshTokenExpires")
+                    b.Property<DateTime>("RefreshTokenExpires")
                         .HasColumnType("datetime");
 
-                    b.Property<int?>("RoleId")
+                    b.Property<int>("RoleId")
                         .HasColumnType("int");
 
                     b.Property<string>("Token")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("TokenExpires")
+                    b.Property<DateTime>("TokenExpires")
                         .HasColumnType("datetime");
 
                     b.Property<string>("Username")
@@ -121,7 +115,7 @@ namespace Model.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("AccountId")
-                        .HasName("PK__SystemUs__3214EC079E2489F6");
+                        .HasName("PK_SystemUserAccount");
 
                     b.HasIndex("RoleId");
 
@@ -133,7 +127,9 @@ namespace Model.Migrations
                     b.HasOne("Model.Models.Role", "Role")
                         .WithMany("SystemUserAccounts")
                         .HasForeignKey("RoleId")
-                        .HasConstraintName("FK__SystemUse__RoleI__4BAC3F29");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_SystemUserAccount_Role");
 
                     b.Navigation("Role");
                 });

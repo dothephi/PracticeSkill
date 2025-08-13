@@ -24,9 +24,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Enum\" />
 	  <Folder Include="Helper\" />
 	  <Folder Include="Mapper\" />
+	  <Folder Include="Migrations\" />
 	</ItemGroup>
 	
 </Project>

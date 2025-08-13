@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Model.Data;
+using Model.Enum;
 using Model.Models;
 using System;
 using System.Collections.Generic;
@@ -19,46 +20,70 @@ public partial class PracticeSkillContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Role entity
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07383340E5");
+            // Dùng enum AccountRoles làm khóa chính
+            entity.HasKey(e => e.Id).HasName("PK_Role");
 
             entity.ToTable("Role");
+
+            // Map enum sang int trong DB
+            entity.Property(e => e.Id)
+                .HasConversion<int>()
+                .IsRequired();
 
             entity.Property(e => e.RoleName)
                 .IsRequired()
                 .HasMaxLength(100);
         });
 
+        // SystemUserAccount entity
         modelBuilder.Entity<SystemUserAccount>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__SystemUs__3214EC079E2489F6");
+            entity.HasKey(e => e.AccountId).HasName("PK_SystemUserAccount");
 
             entity.ToTable("SystemUserAccount");
 
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.Birthday).HasColumnType("date");
+
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+
             entity.Property(e => e.Email)
                 .IsRequired()
                 .HasMaxLength(255);
-            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+            // Map enum AccountStatus sang int
+            entity.Property(e => e.IsActive)
+                .HasConversion<int>() // Enum -> int
+                .HasDefaultValue(AccountStatus.Active); // Đặt default bằng enum, không phải số
+
             entity.Property(e => e.PasswordHash)
                 .IsRequired()
                 .HasMaxLength(255);
+
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+
             entity.Property(e => e.Username)
                 .IsRequired()
                 .HasMaxLength(100);
 
-            entity.HasOne(d => d.Role).WithMany(p => p.SystemUserAccounts)
+            // Map enum AccountRoles sang int
+            entity.Property(e => e.RoleId)
+                .HasConversion<int>()
+                .IsRequired();
+
+            entity.HasOne(d => d.Role)
+                .WithMany(p => p.SystemUserAccounts)
                 .HasForeignKey(d => d.RoleId)
-                .HasConstraintName("FK__SystemUse__RoleI__4BAC3F29");
+                .HasPrincipalKey(r => r.Id) // PK bên Role là enum
+                .HasConstraintName("FK_SystemUserAccount_Role");
 
             entity.Property(e => e.Token)
-                .HasMaxLength(500); // nếu cần giới hạn chiều dài
+                .HasMaxLength(500);
 
             entity.Property(e => e.TokenExpires)
                 .HasColumnType("datetime");
