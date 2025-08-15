@@ -66,7 +66,7 @@ namespace BusinessLogicLayer.Services
             response.Message = "Đăng nhập thành công!";
             response.Data = new { Token = token, RefreshToken = refreshToken };
 
-            return response = null;
+            return response;
         }
 
         private string HashPassword(string password)
