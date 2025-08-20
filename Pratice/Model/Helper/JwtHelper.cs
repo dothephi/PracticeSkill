@@ -27,8 +27,11 @@ namespace Model.Helper
 
         public string GenerateJwtToken(SystemUserAccount account)
         {
+            if (account == null)
+                throw new ArgumentNullException(nameof(account));
+
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret not configured"));
 
             var claims = new List<Claim>
             {
@@ -36,8 +39,7 @@ namespace Model.Helper
                 new Claim(JwtRegisteredClaimNames.Email, account.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Name, account.Username),
-                new Claim(ClaimTypes.Role, account.RoleId.ToString()),
-                new Claim("userId", account.AccountId)
+                new Claim(ClaimTypes.Role, account.Role?.RoleName ?? account.RoleId.ToString())
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -69,7 +71,7 @@ namespace Model.Helper
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
+                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret not configured"));
 
                 var validationParameters = new TokenValidationParameters
                 {

@@ -44,8 +44,8 @@ namespace API
                         ValidateIssuer = true,
                         ValidateAudience = true,
 
-                        ValidIssuer = builder.Configuration["Jwt:validissuer"],
-                        ValidAudience = builder.Configuration["Jwt:validAudience"],
+                        ValidIssuer = builder.Configuration["Jwt:ValidIssuer"],
+                        ValidAudience = builder.Configuration["Jwt:ValidAudience"],
 
                         ClockSkew = TimeSpan.Zero // Ensure token expiration is strict
                     };
