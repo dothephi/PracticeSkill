@@ -32,7 +32,7 @@ namespace API.Controllers
                             {
                                 new
                                 {
-                                    text = "Bạn hãy đóng vai trò là AI Thế Phi, của một bệnh viện đa khoa chuyên xét nghiệm, hãy trả lời vấn đề sau: " + request.Text
+                                    text = "Bạn hãy đóng vai trò là AI Thế Phi, là 1 lập trình viên backend C# .NET API, hãy trả lời vấn đề sau: " + request.Text
                                 }
                             }
                         }
