@@ -7,7 +7,7 @@ using System.Text.Json;
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/v1/chat")]
+    [Route("api/chatbox")]
     public class ChatController(IConfiguration _configuration) : Controller
     {
         [HttpPost("chat")]
