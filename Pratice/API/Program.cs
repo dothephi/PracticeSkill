@@ -6,10 +6,12 @@ using DataAccess.UoW;
 using Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Model.Data;
 using Model.Helper;
+using Model.Mapper;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json;
@@ -24,8 +26,11 @@ namespace API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
+            
+            // Add AutoMapper
+            builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -69,14 +74,13 @@ namespace API
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
-        
+            builder.Services.AddScoped<IProductService, ProductService>();
+
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                 {
-                    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                     options.JsonSerializerOptions.MaxDepth = 64;
-
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
                 });
 
@@ -92,7 +96,7 @@ namespace API
                     });
             });
 
-            // Bear
+            // Configure Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(option =>
             {
@@ -119,7 +123,6 @@ namespace API
                 });
             });
 
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -135,13 +138,9 @@ namespace API
             });
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthentication();
-
             app.UseAuthorization();
-
             app.MapControllers();
 
             app.Run();

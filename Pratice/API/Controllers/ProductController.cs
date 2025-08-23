@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
+using Model.Models.DTO;
 using Model.Models.DTO.Product;
 
 namespace API.Controllers
@@ -19,6 +20,8 @@ namespace API.Controllers
         public async Task<IActionResult> GetAllProducts()
         {
             var result = await _productService.GetAllProductAsync();
+            if (!result.IsSucceed)
+                return BadRequest(result);
             return Ok(result);
         }
 
@@ -26,6 +29,8 @@ namespace API.Controllers
         public async Task<IActionResult> GetProductById(int id)
         {
             var result = await _productService.GetProductByIdAsync(id);
+            if (!result.IsSucceed)
+                return BadRequest(result);
             return Ok(result);
         }
 
@@ -33,6 +38,8 @@ namespace API.Controllers
         public async Task<IActionResult> CreateProduct(CreateProductDTO createProductDTO)
         {
             var result = await _productService.CreateProductAsync(createProductDTO);
+            if (!result.IsSucceed)
+                return BadRequest(result);
             return Ok(result);
         }
 
@@ -40,14 +47,18 @@ namespace API.Controllers
         public async Task<IActionResult> UpdateProduct(int id, UpdateProductDTO updateProductDTO)
         {
             var result = await _productService.UpdateProductAsync(id, updateProductDTO);
+            if (!result.IsSucceed)
+                return BadRequest(result);
             return Ok(result);
         }
 
         [HttpDelete("delete-product/{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var response = await _productService.DeleteProductAsync(id);
-            return Ok(response);
+            var result = await _productService.DeleteProductAsync(id);
+            if (!result.IsSucceed)
+                return BadRequest(result);
+            return Ok(result);
         }
     }
 }
