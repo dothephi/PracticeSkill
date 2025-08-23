@@ -26,7 +26,6 @@
 	<ItemGroup>
 	  <Folder Include="Mapper\" />
 	  <Folder Include="Migrations\" />
-	  <Folder Include="Models\DTO\Product\" />
 	</ItemGroup>
 	
 </Project>
