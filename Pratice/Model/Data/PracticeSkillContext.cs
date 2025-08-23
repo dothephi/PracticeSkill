@@ -18,17 +18,19 @@ public partial class PracticeSkillContext : DbContext
 
     public virtual DbSet<SystemUserAccount> SystemUserAccounts { get; set; }
 
+    public virtual DbSet<Products> Products { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // ============================
         // Role entity
+        // ============================
         modelBuilder.Entity<Role>(entity =>
         {
-            // Dùng enum AccountRoles làm khóa chính
             entity.HasKey(e => e.Id).HasName("PK_Role");
 
             entity.ToTable("Role");
 
-            // Map enum sang int trong DB
             entity.Property(e => e.Id)
                 .HasConversion<int>()
                 .IsRequired();
@@ -38,7 +40,9 @@ public partial class PracticeSkillContext : DbContext
                 .HasMaxLength(100);
         });
 
+        // ============================
         // SystemUserAccount entity
+        // ============================
         modelBuilder.Entity<SystemUserAccount>(entity =>
         {
             entity.HasKey(e => e.AccountId).HasName("PK_SystemUserAccount");
@@ -56,10 +60,9 @@ public partial class PracticeSkillContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255);
 
-            // Map enum AccountStatus sang int
             entity.Property(e => e.IsActive)
-                .HasConversion<int>() // Enum -> int
-                .HasDefaultValue(AccountStatus.Active); // Đặt default bằng enum, không phải số
+                .HasConversion<int>()
+                .HasDefaultValue(AccountStatus.Active);
 
             entity.Property(e => e.PasswordHash)
                 .IsRequired()
@@ -71,7 +74,6 @@ public partial class PracticeSkillContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
 
-            // Map enum AccountRoles sang int
             entity.Property(e => e.RoleId)
                 .HasConversion<int>()
                 .IsRequired();
@@ -79,29 +81,57 @@ public partial class PracticeSkillContext : DbContext
             entity.HasOne(d => d.Role)
                 .WithMany(p => p.SystemUserAccounts)
                 .HasForeignKey(d => d.RoleId)
-                .HasPrincipalKey(r => r.Id) // PK bên Role là enum
+                .HasPrincipalKey(r => r.Id)
                 .HasConstraintName("FK_SystemUserAccount_Role");
 
-            entity.Property(e => e.Token)
-                .HasMaxLength(500);
+            entity.Property(e => e.Token).HasMaxLength(500);
+            entity.Property(e => e.TokenExpires).HasColumnType("datetime");
+            entity.Property(e => e.RefreshToken).HasMaxLength(500);
+            entity.Property(e => e.RefreshTokenExpires).HasColumnType("datetime");
+            entity.Property(e => e.IsEmailVerified).HasDefaultValue(false);
+            entity.Property(e => e.EmailVerificationToken).HasMaxLength(500);
+            entity.Property(e => e.EmailVerificationTokenExpires).HasColumnType("datetime");
+        });
 
-            entity.Property(e => e.TokenExpires)
+        // ============================
+        // Products entity
+        // ============================
+        modelBuilder.Entity<Products>(entity =>
+        {
+            entity.HasKey(e => e.ProductId).HasName("PK_Products");
+
+            entity.ToTable("Products");
+
+            entity.Property(e => e.ProductId)
+                .IsRequired();
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(e => e.Quantity).IsRequired();
+
+            entity.Property(e => e.Quality)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.Stock);
+
+            entity.Property(e => e.Suplier).HasMaxLength(255);
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
 
-            entity.Property(e => e.RefreshToken)
-                .HasMaxLength(500);
+            entity.Property(e => e.A).HasMaxLength(255);
+            entity.Property(e => e.B).HasMaxLength(255);
+            entity.Property(e => e.C).HasMaxLength(255);
 
-            entity.Property(e => e.RefreshTokenExpires)
-                .HasColumnType("datetime");
-
-            entity.Property(e => e.IsEmailVerified)
-                .HasDefaultValue(false);
-
-            entity.Property(e => e.EmailVerificationToken)
-                .HasMaxLength(500);
-
-            entity.Property(e => e.EmailVerificationTokenExpires)
-                .HasColumnType("datetime");
+            // Quan hệ 1 User -> N Products
+            entity.HasOne(d => d.SystemUserAccount)
+                .WithMany(p => p.Products)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_Products_SystemUserAccount");
         });
 
         OnModelCreatingPartial(modelBuilder);
