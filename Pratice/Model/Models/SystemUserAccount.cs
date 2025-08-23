@@ -49,4 +49,5 @@ public class SystemUserAccount
     public DateTime? EmailVerificationTokenExpires { get; set; }
 
     public virtual Role Role { get; set; }
+    public virtual ICollection<Products> Products { get; set; } = new List<Products>();
 }
