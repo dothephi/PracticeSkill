@@ -5,6 +5,8 @@ using Model.Models;
 using Model.Models.DTO;
 using Model.Models.DTO.Product;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.Services
 {
@@ -31,15 +33,15 @@ namespace BusinessLogicLayer.Services
                     return new ResponseDTO
                     {
                         IsSucceed = false,
-                        Message = "No products found"
+                        Message = "There is no any product"
                     };
                 }
-
+                var productDTOs = _mapper.Map<List<GetAllProductDTO>>(products);
                 return new ResponseDTO
                 {
                     IsSucceed = true,
                     Message = "Products retrieved successfully",
-                    Data = products
+                    Data = productDTOs
                 };
             }
             catch (Exception ex)
@@ -66,12 +68,12 @@ namespace BusinessLogicLayer.Services
                         Message = "Product not found"
                     };
                 }
-
+                var productDTO = _mapper.Map<ProductDTO>(product);
                 return new ResponseDTO
                 {
                     IsSucceed = true,
                     Message = "Product retrieved successfully",
-                    Data = product
+                    Data = productDTO
                 };
             }
             catch (Exception ex)
@@ -90,15 +92,14 @@ namespace BusinessLogicLayer.Services
             try
             {
                 var product = _mapper.Map<Products>(createProductDTO);
-                
                 await _unitOfWork.ProductRepository.AddAsync(product);
-                await _unitOfWork.SaveChangesAsync();
-
+                await _unitOfWork.SaveChangeAsync();
+                var productDTO = _mapper.Map<ProductDTO>(product);
                 return new ResponseDTO
                 {
                     IsSucceed = true,
                     Message = "Product created successfully",
-                    Data = product
+                    Data = productDTO
                 };
             }
             catch (Exception ex)
@@ -125,16 +126,15 @@ namespace BusinessLogicLayer.Services
                         Message = "Product not found"
                     };
                 }
-
                 _mapper.Map(updateProductDTO, existingProduct);
                 await _unitOfWork.ProductRepository.UpdateAsync(existingProduct);
-                await _unitOfWork.SaveChangesAsync();
-
+                await _unitOfWork.SaveChangeAsync();
+                var productDTO = _mapper.Map<ProductDTO>(existingProduct);
                 return new ResponseDTO
                 {
                     IsSucceed = true,
                     Message = "Product updated successfully",
-                    Data = existingProduct
+                    Data = productDTO
                 };
             }
             catch (Exception ex)
@@ -153,8 +153,7 @@ namespace BusinessLogicLayer.Services
             try
             {
                 await _unitOfWork.ProductRepository.DeleteAsync(productId);
-                await _unitOfWork.SaveChangesAsync();
-
+                await _unitOfWork.SaveChangeAsync();
                 return new ResponseDTO
                 {
                     IsSucceed = true,
