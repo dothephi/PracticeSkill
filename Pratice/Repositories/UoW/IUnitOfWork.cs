@@ -1,11 +1,13 @@
 ﻿using DataAccess.Repositories.IRepositories;
+using Model.Data;
 using System.Threading.Tasks;
 
 namespace DataAccess.UoW
 {
     public interface IUnitOfWork
     {
-        IGenericRepository<Model.Models.Products> ProductRepository { get; }
-        Task<int> SaveChangesAsync();
+        IProductRepository ProductRepository { get; }
+        public Task<int> SaveChangeAsync();
+        PracticeSkillContext dbContext { get; }
     }
 }
