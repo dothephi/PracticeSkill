@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace Model.Models.DTO.Vnpay
 {
-    internal class VnpayPaymentRequest
+    public class VnpayPaymentRequest
     {
+        public string OrderType { get; set; } = "150000"; // Default order type
+        public string OrderDescription { get; set; } = string.Empty;
+        public string OrderId { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public int LearnerId { get; set; }
+        public string TransactionId { get; set; } = string.Empty;
+        public string SuccessUrl { get; set; } = string.Empty;
+        public string FailureUrl { get; set; } = string.Empty;
     }
 }
