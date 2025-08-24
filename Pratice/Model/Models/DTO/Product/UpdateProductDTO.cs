@@ -8,7 +8,7 @@ namespace Model.Models.DTO.Product
 {
     public class UpdateProductDTO
     {
-        public string ProductId { get; set; }
+        public int ProductId { get; set; }
         public string Name { get; set; }
         public int Quantity { get; set; }
         public string Quality { get; set; }

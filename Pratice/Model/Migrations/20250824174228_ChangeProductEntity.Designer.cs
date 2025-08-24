@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Model.Data;
 
@@ -11,9 +12,11 @@ using Model.Data;
 namespace Model.Migrations
 {
     [DbContext(typeof(PracticeSkillContext))]
-    partial class PracticeSkillContextModelSnapshot : ModelSnapshot
+    [Migration("20250824174228_ChangeProductEntity")]
+    partial class ChangeProductEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,11 +27,8 @@ namespace Model.Migrations
 
             modelBuilder.Entity("Model.Models.Products", b =>
                 {
-                    b.Property<int>("ProductId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
+                    b.Property<string>("ProductId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("A")
                         .HasMaxLength(255)

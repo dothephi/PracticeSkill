@@ -8,7 +8,7 @@ namespace Model.Models.DTO.Product
 {
     public class CreateProductDTO
     {
-        public string ProductId { get; set; }
+        public int ProductId { get; set; }
 
         public string Name { get; set; }
 

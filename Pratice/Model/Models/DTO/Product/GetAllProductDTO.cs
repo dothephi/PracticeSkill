@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Model.Models
+namespace Model.Models.DTO.Product
 {
-    public class Products
+    public class GetAllProductDTO
     {
-        [Key]
         public int ProductId { get; set; }
 
         public string Name { get; set; }
@@ -26,6 +29,5 @@ namespace Model.Models
         public string? C { get; set; }
 
         public string AccountId { get; set; }
-        public virtual SystemUserAccount SystemUserAccount { get; set; }
     }
 }

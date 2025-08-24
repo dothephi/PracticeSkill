@@ -103,7 +103,8 @@ public partial class PracticeSkillContext : DbContext
             entity.ToTable("Products");
 
             entity.Property(e => e.ProductId)
-                .IsRequired();
+                .IsRequired()
+                .ValueGeneratedOnAdd();
 
             entity.Property(e => e.Name)
                 .IsRequired()
