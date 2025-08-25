@@ -8,13 +8,11 @@ namespace Model.Models.DTO.Product
 {
     public class UpdateProductDTO
     {
-        public int ProductId { get; set; }
         public string Name { get; set; }
         public int Quantity { get; set; }
         public string Quality { get; set; }
         public int? Stock { get; set; }
         public string? Suplier { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public string? A { get; set; }
         public string? B { get; set; }
         public string? C { get; set; }

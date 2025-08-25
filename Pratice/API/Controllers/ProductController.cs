@@ -1,6 +1,5 @@
 ﻿using BusinessLogicLayer.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Model.Models.DTO;
 using Model.Models.DTO.Product;
 
 namespace API.Controllers
@@ -35,7 +34,7 @@ namespace API.Controllers
         }
 
         [HttpPost("create-product")]
-        public async Task<IActionResult> CreateProduct(CreateProductDTO createProductDTO)
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO createProductDTO)
         {
             var result = await _productService.CreateProductAsync(createProductDTO);
             if (!result.IsSucceed)
@@ -44,7 +43,7 @@ namespace API.Controllers
         }
 
         [HttpPut("update-product/{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, UpdateProductDTO updateProductDTO)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDTO updateProductDTO)
         {
             var result = await _productService.UpdateProductAsync(id, updateProductDTO);
             if (!result.IsSucceed)
