@@ -7,8 +7,10 @@ using Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Model.Configuration;
 using Model.Data;
 using Model.Helper;
 using Model.Mapper;
@@ -65,6 +67,11 @@ namespace API
                 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
                 option.UseSqlServer(connectionString);
             });
+
+            // VNPay Configuration
+            builder.Services.Configure<VnpaySettings>(builder.Configuration.GetSection("Vnpay"));
+            builder.Services.AddSingleton<VnpaySettings>(sp => sp.GetRequiredService<IOptions<VnpaySettings>>().Value);
+            builder.Services.AddScoped<IVnpayService, VnpayService>();
 
             // Inject app Dependency Injection
             builder.Services.AddScoped<PracticeSkillContext>();

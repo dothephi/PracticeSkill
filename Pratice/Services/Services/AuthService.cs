@@ -1,11 +1,12 @@
 ﻿using BusinessLogicLayer.Services.IServices;
 using DataAccess.Repositories.IRepositories;
+using DataAccess.UoW;
+using Microsoft.Extensions.Logging;
 using Model.Enum;
 using Model.Helper;
 using Model.Models.DTO;
 using Model.Models.DTO.Auth;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.Logging;
 
 namespace BusinessLogicLayer.Services
 {
@@ -14,23 +15,27 @@ namespace BusinessLogicLayer.Services
         private readonly IAuthRepository _authRepository;
         private readonly JwtHelper _jwtHelper;
         private readonly ILogger<AuthService> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(IAuthRepository authRepository, JwtHelper jwtHelper, ILogger<AuthService> logger)
+        public AuthService(IAuthRepository authRepository, JwtHelper jwtHelper, ILogger<AuthService> logger, UnitOfWork unitOfWork)
         {
             _authRepository = authRepository;
             _jwtHelper = jwtHelper;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<ResponseDTO> LoginAsync(LoginDTO loginDTO)
         {
             var response = new ResponseDTO();
-            
-            try 
-            {
-                _logger.LogInformation($"Attempting login for username: {loginDTO.Username}");
 
+            try
+            {
+                _logger.LogInformation($"Attempting login for username/email: {loginDTO.Username}");
+
+                // Tìm theo Username
                 var user = await _authRepository.GetByUserName(loginDTO.Username);
+
                 if (user == null)
                 {
                     _logger.LogWarning($"User not found: {loginDTO.Username}");
@@ -38,13 +43,10 @@ namespace BusinessLogicLayer.Services
                     return response;
                 }
 
-                _logger.LogInformation($"User found, verifying password for user: {loginDTO.Username}");
-                _logger.LogDebug($"Stored hash format: {user.PasswordHash?.Substring(0, Math.Min(user.PasswordHash?.Length ?? 0, 10))}...");
+                _logger.LogInformation($"User found: {user.Username}, verifying password...");
 
-                _logger.LogInformation($"Comparing entered password: {loginDTO.Password} with hash: {user.PasswordHash}");
+                // Kiểm tra password
                 var isPasswordValid = VerifyPassword(loginDTO.Password, user.PasswordHash);
-                _logger.LogInformation($"Password valid: {isPasswordValid}");
-
                 if (!isPasswordValid)
                 {
                     _logger.LogWarning($"Invalid password for user: {loginDTO.Username}");
@@ -52,50 +54,40 @@ namespace BusinessLogicLayer.Services
                     return response;
                 }
 
+                // Kiểm tra email
                 if (!user.IsEmailVerified)
                 {
                     _logger.LogWarning($"Email not verified for user: {loginDTO.Username}");
-                    response.Message = "Vui lòng xác minh email của bạn trước khi đăng nhập. Kiểm tra hộp thư đến để biết mã xác minh.";
+                    response.Message = "Vui lòng xác minh email của bạn trước khi đăng nhập.";
                     return response;
                 }
 
+                // Kiểm tra trạng thái
                 if (user.IsActive == AccountStatus.Banned)
                 {
                     _logger.LogWarning($"Account banned for user: {loginDTO.Username}");
-                    response.Message = "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ với quản trị viên để biết thêm chi tiết.";
+                    response.Message = "Tài khoản đã bị khóa. Liên hệ admin để biết thêm.";
                     return response;
                 }
 
-                _logger.LogInformation($"Generating tokens for user: {loginDTO.Username}");
-                
-                try
-                {
-                    var token = _jwtHelper.GenerateJwtToken(user);
-                    var refreshToken = _jwtHelper.GenerateRefreshToken();
+                // Sinh token
+                var token = _jwtHelper.GenerateJwtToken(user);
+                var refreshToken = _jwtHelper.GenerateRefreshToken();
 
-                    var tokenExpiration = DateTime.UtcNow.AddHours(1);
-                    var refreshTokenExpiration = DateTime.UtcNow.AddDays(7);
+                user.Token = token;
+                user.TokenExpires = DateTime.UtcNow.AddHours(1);
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpires = DateTime.UtcNow.AddDays(7);
 
-                    user.Token = token;
-                    user.TokenExpires = tokenExpiration;
-                    user.RefreshToken = refreshToken;
-                    user.RefreshTokenExpires = refreshTokenExpiration;
+                await _authRepository.UpdateAsync(user);
+                await _unitOfWork.SaveChangeAsync();
 
-                    await _authRepository.UpdateAsync(user);
-                    _logger.LogInformation($"Tokens updated for user: {loginDTO.Username}");
+                response.IsSucceed = true;
+                response.Message = "Đăng nhập thành công!";
+                response.Data = new { Token = token, RefreshToken = refreshToken };
 
-                    response.IsSucceed = true;
-                    response.Message = "Đăng nhập thành công!";
-                    response.Data = new { Token = token, RefreshToken = refreshToken };
-
-                    _logger.LogInformation($"Login successful for user: {loginDTO.Username}");
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error generating or saving tokens");
-                    throw;
-                }
+                _logger.LogInformation($"Login successful for user: {loginDTO.Username}");
+                return response;
             }
             catch (Exception ex)
             {
@@ -110,20 +102,19 @@ namespace BusinessLogicLayer.Services
             if (string.IsNullOrEmpty(password))
                 throw new ArgumentException("Password cannot be empty");
 
-            return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt());
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         private bool VerifyPassword(string enteredPassword, string hashedPassword)
         {
             if (string.IsNullOrEmpty(enteredPassword) || string.IsNullOrEmpty(hashedPassword))
             {
-                _logger.LogWarning("Password or hash is null or empty");
+                _logger.LogWarning("Password or hash is null/empty");
                 return false;
             }
 
             try
             {
-                _logger.LogDebug($"Attempting to verify password. Hash format: {hashedPassword.Substring(0, Math.Min(hashedPassword.Length, 10))}...");
                 return BCrypt.Net.BCrypt.Verify(enteredPassword, hashedPassword);
             }
             catch (Exception ex)
