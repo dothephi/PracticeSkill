@@ -17,7 +17,7 @@ namespace BusinessLogicLayer.Services
         private readonly ILogger<AuthService> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(IAuthRepository authRepository, JwtHelper jwtHelper, ILogger<AuthService> logger, UnitOfWork unitOfWork)
+        public AuthService(IAuthRepository authRepository, JwtHelper jwtHelper, ILogger<AuthService> logger, IUnitOfWork unitOfWork)
         {
             _authRepository = authRepository;
             _jwtHelper = jwtHelper;
