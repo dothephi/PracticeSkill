@@ -1,6 +1,8 @@
-﻿using BusinessLogicLayer.Services.IServices;
+﻿using AutoMapper;
+using BusinessLogicLayer.Services.IServices;
 using DataAccess.Repositories.IRepositories;
 using DataAccess.UoW;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Model.Enum;
 using Model.Helper;
@@ -14,114 +16,81 @@ namespace BusinessLogicLayer.Services
     {
         private readonly IAuthRepository _authRepository;
         private readonly JwtHelper _jwtHelper;
-        private readonly ILogger<AuthService> _logger;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IConfiguration _configuration;
+        private IMapper _mapper;
 
-        public AuthService(IAuthRepository authRepository, JwtHelper jwtHelper, ILogger<AuthService> logger, IUnitOfWork unitOfWork)
+        public AuthService(IAuthRepository authRepository, JwtHelper jwtHelper, IConfiguration configuration, IMapper mapper)
         {
             _authRepository = authRepository;
             _jwtHelper = jwtHelper;
-            _logger = logger;
-            _unitOfWork = unitOfWork;
+            _configuration = configuration;
+            _mapper = mapper;
         }
 
         public async Task<ResponseDTO> LoginAsync(LoginDTO loginDTO)
         {
             var response = new ResponseDTO();
 
-            try
+            var user = await _authRepository.GetByUserName(loginDTO.Username);
+            if (user == null)
             {
-                _logger.LogInformation($"Attempting login for username/email: {loginDTO.Username}");
-
-                // Tìm theo Username
-                var user = await _authRepository.GetByUserName(loginDTO.Username);
-
-                if (user == null)
-                {
-                    _logger.LogWarning($"User not found: {loginDTO.Username}");
-                    response.Message = "Thông tin đăng nhập không hợp lệ";
-                    return response;
-                }
-
-                _logger.LogInformation($"User found: {user.Username}, verifying password...");
-
-                // Kiểm tra password
-                var isPasswordValid = VerifyPassword(loginDTO.Password, user.PasswordHash);
-                if (!isPasswordValid)
-                {
-                    _logger.LogWarning($"Invalid password for user: {loginDTO.Username}");
-                    response.Message = "Thông tin đăng nhập không hợp lệ";
-                    return response;
-                }
-
-                // Kiểm tra email
-                if (!user.IsEmailVerified)
-                {
-                    _logger.LogWarning($"Email not verified for user: {loginDTO.Username}");
-                    response.Message = "Vui lòng xác minh email của bạn trước khi đăng nhập.";
-                    return response;
-                }
-
-                // Kiểm tra trạng thái
-                if (user.IsActive == AccountStatus.Banned)
-                {
-                    _logger.LogWarning($"Account banned for user: {loginDTO.Username}");
-                    response.Message = "Tài khoản đã bị khóa. Liên hệ admin để biết thêm.";
-                    return response;
-                }
-
-                // Sinh token
-                var token = _jwtHelper.GenerateJwtToken(user);
-                var refreshToken = _jwtHelper.GenerateRefreshToken();
-
-                user.Token = token;
-                user.TokenExpires = DateTime.UtcNow.AddHours(1);
-                user.RefreshToken = refreshToken;
-                user.RefreshTokenExpires = DateTime.UtcNow.AddDays(7);
-
-                await _authRepository.UpdateAsync(user);
-                await _unitOfWork.SaveChangeAsync();
-
-                response.IsSucceed = true;
-                response.Message = "Đăng nhập thành công!";
-                response.Data = new { Token = token, RefreshToken = refreshToken };
-
-                _logger.LogInformation($"Login successful for user: {loginDTO.Username}");
+                response.Message = "Thông tin đăng nhập không hợp lệ";
                 return response;
             }
-            catch (Exception ex)
+
+            var isPasswordValid = VerifyPassword(loginDTO.Password, user.PasswordHash);
+
+            if (!isPasswordValid)
             {
-                _logger.LogError(ex, $"Error during login for user: {loginDTO.Username}");
-                response.Message = "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại sau.";
+                response.Message = "Thông tin đăng nhập không hợp lệ";
                 return response;
             }
+
+            if (!user.IsEmailVerified)
+            {
+                response.Message = "Vui lòng xác minh email của bạn trước khi đăng nhập. Kiểm tra hộp thư đến để biết mã xác minh.";
+                return response;
+            }
+
+            if (user.IsActive == AccountStatus.Banned)
+            {
+                response.Message = "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ với quản trị viên để biết thêm chi tiết.";
+                return response;
+            }
+
+            var token = _jwtHelper.GenerateJwtToken(user);
+            var refreshToken = _jwtHelper.GenerateRefreshToken();
+
+            var tokenExpiration = DateTime.Now.AddHours(1);
+            var refreshTokenExpiration = DateTime.Now.AddDays(7);
+
+            user.Token = token;
+            user.TokenExpires = tokenExpiration;
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpires = refreshTokenExpiration;
+            await _authRepository.UpdateAsync(user);
+
+            response.IsSucceed = true;
+            response.Message = "Đăng nhập thành công!";
+            response.Data = new { Token = token, RefreshToken = refreshToken };
+
+            return response;
+
         }
 
         private string HashPassword(string password)
         {
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentException("Password cannot be empty");
-
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         private bool VerifyPassword(string enteredPassword, string hashedPassword)
         {
-            if (string.IsNullOrEmpty(enteredPassword) || string.IsNullOrEmpty(hashedPassword))
-            {
-                _logger.LogWarning("Password or hash is null/empty");
-                return false;
-            }
+            return BCrypt.Net.BCrypt.Verify(enteredPassword, hashedPassword);
+        }
 
-            try
-            {
-                return BCrypt.Net.BCrypt.Verify(enteredPassword, hashedPassword);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error verifying password");
-                return false;
-            }
+        private string GenerateUniqueId()
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 }
