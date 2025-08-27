@@ -15,7 +15,7 @@ namespace BusinessLogicLayer.Services
     public class AuthService : IAuthService
     {
         private readonly IAuthRepository _authRepository;
-        private readonly JwtHelper _jwtHelper;
+        private JwtHelper _jwtHelper;
         private readonly IConfiguration _configuration;
         private IMapper _mapper;
 

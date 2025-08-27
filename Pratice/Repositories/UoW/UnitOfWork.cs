@@ -15,12 +15,10 @@ namespace DataAccess.UoW
     {
         private readonly PracticeSkillContext _dbContext;
         private bool disposed = false;
-        private IProductRepository _productRepository;
-
+        private readonly IProductRepository _productRepository;
 
         public PracticeSkillContext dbContext { get { return _dbContext; } }
         public IProductRepository ProductRepository { get { return _productRepository; } }
-
 
 
         public UnitOfWork(PracticeSkillContext dbcontext, IProductRepository productRepository)
@@ -39,6 +37,7 @@ namespace DataAccess.UoW
                 disposed = true;
             }
         }
+
         public void Dispose()
         {
             Dispose(true);

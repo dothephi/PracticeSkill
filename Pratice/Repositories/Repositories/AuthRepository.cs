@@ -9,24 +9,17 @@ namespace DataAccess.Repositories
     public class AuthRepository : GenericRepository<SystemUserAccount>, IAuthRepository
     {
         private readonly PracticeSkillContext _appDbContext;
-        private readonly ILogger<AuthRepository> _logger;
 
-        public AuthRepository(PracticeSkillContext appDbContext, ILogger<AuthRepository> logger) : base(appDbContext)
+        public AuthRepository(PracticeSkillContext appDbContext) : base(appDbContext)
         {
-            _appDbContext = appDbContext;
-            _logger = logger;
+            {
+                _appDbContext = appDbContext;
+            }
         }
 
         public async Task<SystemUserAccount> GetByUserName(string Username)
         {
-            var user = await _appDbContext.SystemUserAccounts
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Username == Username);
-            if (user == null)
-                _logger.LogWarning($"User not found for username: {Username}");
-            else
-                _logger.LogInformation($"User found: {user.Username}, Hash: {user.PasswordHash}");
-            return user;
+            return await _appDbContext.SystemUserAccounts.FirstOrDefaultAsync(u => u.Username == Username);
         }
     }
 }
