@@ -12,14 +12,14 @@ namespace DataAccess.Repositories
 
         public AuthRepository(PracticeSkillContext appDbContext) : base(appDbContext)
         {
-            {
-                _appDbContext = appDbContext;
-            }
+            _appDbContext = appDbContext;
         }
 
         public async Task<SystemUserAccount> GetByUserName(string Username)
         {
-            return await _appDbContext.SystemUserAccounts.FirstOrDefaultAsync(u => u.Username == Username);
+            return await _appDbContext.SystemUserAccounts
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Username == Username);
         }
     }
 }
