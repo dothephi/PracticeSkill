@@ -10,6 +10,7 @@ namespace BusinessLogicLayer.Services.IServices
 {
     public interface IAuthService
     {
+        Task<ResponseDTO> RegisterAsync(RegisterDTO registerDTO);
         Task<ResponseDTO> LoginAsync(LoginDTO loginDTO);
     }
 }

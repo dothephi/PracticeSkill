@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Model.Data;
 using Model.Models;
-using Microsoft.Extensions.Logging;
 
 namespace DataAccess.Repositories
 {

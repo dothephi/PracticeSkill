@@ -22,15 +22,15 @@ namespace API.Controllers
             _dbContext = dbContext;
         }
 
-        //[HttpPost("Register")]
-        //public async Task<IActionResult> Register(RegisterDTO userRegisterDTO)
-        //{
-        //    var result = await _authService.RegisterAsync(userRegisterDTO);
-        //    if (!result.IsSucceed)
-        //        return BadRequest(result);
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register(RegisterDTO userRegisterDTO)
+        {
+            var result = await _authService.RegisterAsync(userRegisterDTO);
+            if (!result.IsSucceed)
+                return BadRequest(result);
 
-        //    return Ok(result);
-        //}
+            return Ok(result);
+        }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO userLoginDTO)

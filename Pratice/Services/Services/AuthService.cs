@@ -27,6 +27,82 @@ namespace BusinessLogicLayer.Services
             _mapper = mapper;
         }
 
+        public async Task<ResponseDTO> RegisterAsync(RegisterDTO registerDTO)
+        {
+            var response = new ResponseDTO();
+
+            var existingUserName = await _authRepository.GetByUserName(registerDTO.Username);
+            if (existingUserName != null)
+            {
+                if (!existingUserName.IsEmailVerified &&
+                    existingUserName.EmailVerificationTokenExpires > DateTime.Now)
+                {
+                    response.Message = "Tên người dùng đã tồn tại nhưng email chưa được xác minh, vui lòng thử lại sau vài phút.";
+                    return response;
+                }
+
+                response.Message = "Người dùng đã tồn tại!";
+                return response;
+            }
+
+            var existingEmail = await _authRepository.GetByEmail(registerDTO.Email);
+            if (existingEmail != null)
+            {
+                if (!existingEmail.IsEmailVerified &&
+                    existingEmail.EmailVerificationTokenExpires > DateTime.Now)
+                {
+                    response.Message = "Email đã được đăng ký nhưng chưa xác minh, vui lòng kiểm tra hộp thư hoặc thử lại sau vài phút.";
+                    return response;
+                }
+
+                response.Message = "Email đã tồn tại!";
+                return response;
+            }
+
+            var account = _mapper.Map<Account>(registerDTO);
+
+            account.AccountId = GenerateUniqueId();
+            account.PasswordHash = HashPassword(registerDTO.Password);
+            account.IsActive = AccountStatus.PendingEmailVerification;
+            account.Role = AccountRoles.Learner;
+            account.Token = string.Empty;
+            account.RefreshToken = string.Empty;
+            account.CreatedAt = DateTime.Now;
+            account.IsEmailVerified = false;
+            account.EmailVerificationToken = GenerateSixDigitCode();
+            account.EmailVerificationTokenExpires = DateTime.Now.AddMinutes(2);
+
+            await _authRepository.AddAsync(account);
+
+            var user = new Learner
+            {
+                AccountId = account.AccountId,
+                FullName = registerDTO.FullName,
+            };
+
+            await _learnerRepository.AddAsync(user);
+
+            var wallet = new Wallet
+            {
+                LearnerId = user.LearnerId,
+                Balance = 0,
+                UpdateAt = DateTime.UtcNow
+            };
+
+            await _walletRepository.AddAsync(wallet);
+
+            await _emailService.SendVerificationEmailAsync(
+                account.Email,
+                account.Username,
+                account.EmailVerificationToken
+            );
+
+            response.IsSucceed = true;
+            response.Message = "Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản trong vòng 2 phút.";
+            response.Data = true;
+            return response;
+        }
+
         public async Task<ResponseDTO> LoginAsync(LoginDTO loginDTO)
         {
             var response = new ResponseDTO();
