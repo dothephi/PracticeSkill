@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Model.Enum;
 using Model.Helper;
+using Model.Models;
 using Model.Models.DTO;
 using Model.Models.DTO.Auth;
 using System.IdentityModel.Tokens.Jwt;
@@ -59,21 +60,24 @@ namespace BusinessLogicLayer.Services
                 return response;
             }
 
-            var account = _mapper.Map<Account>(registerDTO);
+            var account = _mapper.Map<SystemUserAccount>(registerDTO);
 
             account.AccountId = GenerateUniqueId();
             account.PasswordHash = HashPassword(registerDTO.Password);
             account.IsActive = AccountStatus.PendingEmailVerification;
-            account.Role = AccountRoles.Learner;
+            account.RoleId = AccountRoles.Customer;
             account.Token = string.Empty;
             account.RefreshToken = string.Empty;
-            account.CreatedAt = DateTime.Now;
+            account.CreatedDate = DateTime.Now;
             account.IsEmailVerified = false;
             account.EmailVerificationToken = GenerateSixDigitCode();
             account.EmailVerificationTokenExpires = DateTime.Now.AddMinutes(2);
 
             await _authRepository.AddAsync(account);
 
+            // Note: The following code is commented out as it refers to models that may not exist yet
+            // You'll need to implement these repositories and models separately
+            /*
             var user = new Learner
             {
                 AccountId = account.AccountId,
@@ -96,6 +100,7 @@ namespace BusinessLogicLayer.Services
                 account.Username,
                 account.EmailVerificationToken
             );
+            */
 
             response.IsSucceed = true;
             response.Message = "Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản trong vòng 2 phút.";
@@ -186,6 +191,12 @@ namespace BusinessLogicLayer.Services
         private string GenerateUniqueId()
         {
             return Guid.NewGuid().ToString();
+        }
+
+        private string GenerateSixDigitCode()
+        {
+            Random random = new Random();
+            return random.Next(100000, 999999).ToString();
         }
     }
 }

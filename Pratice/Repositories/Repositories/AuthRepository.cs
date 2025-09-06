@@ -20,5 +20,12 @@ namespace DataAccess.Repositories
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Username == Username);
         }
+
+        public async Task<SystemUserAccount> GetByEmail(string email)
+        {
+            return await _appDbContext.SystemUserAccounts
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
     }
 }
